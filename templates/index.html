@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zimbabwe Fuel Consumption Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            padding: 10px 30px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+        .prediction-card {
+            border-left: 5px solid #0d6efd;
+        }
+        .prediction-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0d6efd;
+        }
+        .fuel-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+        .tab-content {
+            padding: 20px;
+            background-color: white;
+            border-radius: 0 0 15px 15px;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            color: #0d6efd;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="text-center mb-0"><i class="bi bi-fuel-pump"></i> Zimbabwe Fuel Consumption Predictor</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="fuelTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="petrol-tab" data-bs-toggle="tab" data-bs-target="#petrol" type="button" role="tab">
+                                    <i class="bi bi-droplet petrol-icon"></i> Petrol
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="diesel-tab" data-bs-toggle="tab" data-bs-target="#diesel" type="button" role="tab">
+                                    <i class="bi bi-droplet-fill diesel-icon"></i> Diesel
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="fuelTabsContent">
+                            <div class="tab-pane fade show active" id="petrol" role="tabpanel">
+                                <form id="petrolForm" class="mt-3">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date</label>
+                                            <input type="month" class="form-control" id="petrolDate" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">GDP Growth Rate (%)</label>
+                                            <input type="number" step="0.1" class="form-control" id="petrolGDP" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Inflation Rate (%)</label>
+                                            <input type="number" step="0.1" class="form-control" id="petrolInflation" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Trade Balance (% of GDP)</label>
+                                            <input type="number" step="0.1" class="form-control" id="petrolTradeBalance" required>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-lightning-charge"></i> Predict Petrol Consumption
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="diesel" role="tabpanel">
+                                <form id="dieselForm" class="mt-3">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date</label>
+                                            <input type="month" class="form-control" id="dieselDate" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">GDP Growth Rate (%)</label>
+                                            <input type="number" step="0.1" class="form-control" id="dieselGDP" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Inflation Rate (%)</label>
+                                            <input type="number" step="0.1" class="form-control" id="dieselInflation" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Trade Balance (% of GDP)</label>
+                                            <input type="number" step="0.1" class="form-control" id="dieselTradeBalance" required>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-lightning-charge"></i> Predict Diesel Consumption
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="petrolResults" class="card mb-4 fade-in" style="display: none;">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0"><i class="bi bi-droplet"></i> Petrol Consumption Prediction</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card prediction-card mb-3">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Predicted Consumption</h5>
+                                        <div class="prediction-value" id="petrolPrediction">-</div>
+                                        <p class="text-muted mb-0">liters</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <canvas id="petrolHistoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dieselResults" class="card mb-4 fade-in" style="display: none;">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0"><i class="bi bi-droplet-fill"></i> Diesel Consumption Prediction</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card prediction-card mb-3">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Predicted Consumption</h5>
+                                        <div class="prediction-value" id="dieselPrediction">-</div>
+                                        <p class="text-muted mb-0">liters</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <canvas id="dieselHistoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-graph-up"></i> Historical Trends</h4>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="combinedHistoryChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize charts
+        let petrolHistoryChart, dieselHistoryChart, combinedHistoryChart;
+        
+        // Initialize date inputs with current month
+        const now = new Date();
+        const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+        $('#petrolDate').val(currentMonth);
+        $('#dieselDate').val(currentMonth);
+        
+        // Load historical data for both fuels
+        function loadHistoricalData() {
+            $.get('/historical_data/petrol', function(petrolData) {
+                $.get('/historical_data/diesel', function(dieselData) {
+                    createCombinedChart(petrolData, dieselData);
+                    createFuelChart('petrol', petrolData);
+                    createFuelChart('diesel', dieselData);
+                });
+            });
+        }
+        
+        // Create combined chart
+        function createCombinedChart(petrolData, dieselData) {
+            const ctx = document.getElementById('combinedHistoryChart').getContext('2d');
+            
+            if (combinedHistoryChart) combinedHistoryChart.destroy();
+            
+            combinedHistoryChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: petrolData.dates,
+                    datasets: [
+                        {
+                            label: 'Petrol Consumption',
+                            data: petrolData.consumption,
+                            borderColor: '#0dcaf0',
+                            backgroundColor: 'rgba(13, 202, 240, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Diesel Consumption',
+                            data: dieselData.consumption,
+                            borderColor: '#ffc107',
+                            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Petrol vs Diesel Consumption (Last 24 Months)'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Consumption (Liters)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+        
+        // Create individual fuel chart
+        function createFuelChart(fuelType, data) {
+            const ctx = document.getElementById(`${fuelType}HistoryChart`).getContext('2d');
+            const color = fuelType === 'petrol' ? '#0dcaf0' : '#ffc107';
+            
+            if (fuelType === 'petrol' && petrolHistoryChart) petrolHistoryChart.destroy();
+            if (fuelType === 'diesel' && dieselHistoryChart) dieselHistoryChart.destroy();
+            
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.dates,
+                    datasets: [{
+                        label: `${fuelType.charAt(0).toUpperCase() + fuelType.slice(1)} Consumption`,
+                        data: data.consumption,
+                        borderColor: color,
+                        backgroundColor: color + '20',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Liters'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            if (fuelType === 'petrol') petrolHistoryChart = chart;
+            else dieselHistoryChart = chart;
+        }
+        
+        // Form submission handlers
+        $('#petrolForm').submit(function(e) {
+            e.preventDefault();
+            const date = $('#petrolDate').val().split('-');
+            
+            $.ajax({
+                type: 'POST',
+                url: '/predict',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    fuel_type: 'petrol',
+                    gdp: $('#petrolGDP').val(),
+                    inflation: $('#petrolInflation').val(),
+                    trade_balance: $('#petrolTradeBalance').val(),
+                    month: date[1],
+                    year: date[0]
+                }),
+                success: function(response) {
+                    $('#petrolPrediction').text(response.prediction.toLocaleString());
+                    $('#petrolResults').show();
+                    $('html, body').animate({
+                        scrollTop: $('#petrolResults').offset().top - 20
+                    }, 500);
+                },
+                error: function(xhr) {
+                    alert('Error: ' + xhr.responseJSON.error);
+                }
+            });
+        });
+        
+        $('#dieselForm').submit(function(e) {
+            e.preventDefault();
+            const date = $('#dieselDate').val().split('-');
+            
+            $.ajax({
+                type: 'POST',
+                url: '/predict',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    fuel_type: 'diesel',
+                    gdp: $('#dieselGDP').val(),
+                    inflation: $('#dieselInflation').val(),
+                    trade_balance: $('#dieselTradeBalance').val(),
+                    month: date[1],
+                    year: date[0]
+                }),
+                success: function(response) {
+                    $('#dieselPrediction').text(response.prediction.toLocaleString());
+                    $('#dieselResults').show();
+                    $('html, body').animate({
+                        scrollTop: $('#dieselResults').offset().top - 20
+                    }, 500);
+                },
+                error: function(xhr) {
+                    alert('Error: ' + xhr.responseJSON.error);
+                }
+            });
+        });
+        
+        // Load data on page load
+        $(document).ready(function() {
+            loadHistoricalData();
+        });
+    </script>
+</body>
+</html>

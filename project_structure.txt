@@ -1,0 +1,22 @@
+fuel-consumption-predictor/
+├── proj/
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── data_processing.py
+│   │   ├── model_training.py
+│   │   └── utils.py
+│   ├── app.py
+│   ├── requirements.txt
+│   ├── static/
+│   │   └── css/
+│   │       └── style.css
+│   ├── templates/
+│   │   └── index.html
+│   └── data/
+│       └── fuel_data.csv
+├── tests/
+│   ├── __init__.py
+│   ├── test_data_processing.py
+│   └── test_model_training.py
+├── README.md
+└── .gitignore
